@@ -1,0 +1,612 @@
+alias: kalkulyator-toka-korotkogo-zamykaniya
+pagetitle: Калькулятор тока КЗ и длины линии под автомат B или C
+longtitle: Калькулятор тока короткого замыкания и предельной длины линии под автомат B, C или D
+description: Рассчитайте ток КЗ в конце линии и предельную длину кабеля, при которой автомат B, C или D гарантированно отключит замыкание. Метод, примеры, нормы.
+menutitle: Калькулятор тока КЗ
+article_section: calc
+article_topic: ток короткого замыкания,калькулятор тока кз,предельная длина линии,длина кабеля для автомата,петля фаза-ноль,сопротивление петли фаза-ноль,автомат B или C,характеристика автомата,проверка автомата на срабатывание,ток однофазного кз,расчёт тока кз онлайн
+article_type: calculating
+---
+<article class="article-content">
+<style>
+/* Калькулятор тока КЗ и предельной длины линии. Визуальный стиль 1:1 с калькулятором сечения кабеля Gipproekt: сине-белая палитра, светлые карточки, тёмно-синий блок результатов. Все правила ограничены #gp-kz-calc. */
+#gp-kz-calc{--gp-navy:#123c7d;--gp-blue:#2563eb;--gp-blue-light:#eff6ff;--gp-border:#d7e4f7;--gp-text:#0f2557;--gp-muted:#51678f;font-family:inherit;color:var(--gp-text);margin:28px 0 34px;}
+#gp-kz-calc *{box-sizing:border-box;}
+#gp-kz-calc .gp-tc-shell{border:1px solid var(--gp-border);border-radius:18px;overflow:hidden;background:linear-gradient(160deg,#eff6ff,#fff);padding:28px;box-shadow:0 8px 26px rgba(18,60,125,.08);}
+#gp-kz-calc .gp-tc-head{padding:0 0 21px;background:transparent;color:var(--gp-text);}
+#gp-kz-calc .gp-tc-head *{color:inherit;}
+#gp-kz-calc .gp-tc-head .gp-tc-eyebrow{display:block!important;margin:0 0 8px!important;font-family:inherit!important;font-size:11px!important;line-height:1.4!important;font-weight:800!important;letter-spacing:.08em!important;text-transform:uppercase!important;color:#2563eb!important;opacity:1!important;}
+#gp-kz-calc .gp-tc-head h2{display:block!important;margin:0 0 8px!important;font-family:inherit!important;font-size:22px!important;line-height:1.3!important;font-weight:900!important;color:#082247!important;letter-spacing:-.01em!important;}
+#gp-kz-calc .gp-tc-head p:not(.gp-tc-eyebrow){margin:0!important;max-width:820px!important;font-family:inherit!important;font-size:14px!important;line-height:1.55!important;color:#51678f!important;opacity:1!important;}
+#gp-kz-calc .gp-tc-body{padding:0;}
+#gp-kz-calc .gp-tc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:16px;}
+#gp-kz-calc .gp-tc-card{min-width:0;border:1px solid var(--gp-border);border-radius:12px;padding:17px;background:rgba(255,255,255,.88);}
+#gp-kz-calc .gp-tc-card h3{font-size:15px;line-height:1.4;margin:0 0 6px;color:#123c7d;font-weight:800;}
+#gp-kz-calc .gp-tc-card .gp-tc-help{font-size:12px;line-height:1.5;color:var(--gp-muted);margin:0 0 14px;}
+#gp-kz-calc .gp-tc-inputs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+#gp-kz-calc .gp-tc-field{min-width:0;display:flex;flex-direction:column;gap:6px;}
+#gp-kz-calc .gp-tc-field label{font-size:13px;font-weight:700;line-height:1.4;color:#123c7d;}
+#gp-kz-calc .gp-tc-field input,#gp-kz-calc .gp-tc-field select{display:block;width:100%;min-width:0;min-height:43px;margin:0;border:1px solid var(--gp-border);border-radius:10px;background:#fff;padding:10px 12px;font:inherit;font-size:14px;line-height:1.4;color:#0f2557;box-shadow:none;}
+#gp-kz-calc .gp-tc-field input:focus,#gp-kz-calc .gp-tc-field select:focus{outline:none;border-color:#3b82f6;box-shadow:0 0 0 3px rgba(37,99,235,.12);}
+#gp-kz-calc .gp-tc-field input[type="range"]{display:block;width:100%;height:8px;min-height:0;margin:12px 0 4px;padding:0;border:0;border-radius:4px;background:linear-gradient(90deg,#2563eb,#0ea5e9);appearance:none;-webkit-appearance:none;cursor:pointer;}
+#gp-kz-calc .gp-tc-field input[type="range"]:focus{box-shadow:0 0 0 3px rgba(37,99,235,.12);}
+#gp-kz-calc input[type="range"]::-webkit-slider-thumb{width:24px;height:24px;border:3px solid #2563eb;border-radius:50%;background:#fff;box-shadow:0 2px 8px rgba(37,99,235,.4);appearance:none;-webkit-appearance:none;cursor:pointer;}
+#gp-kz-calc input[type="range"]::-moz-range-thumb{width:20px;height:20px;border:3px solid #2563eb;border-radius:50%;background:#fff;cursor:pointer;}
+#gp-kz-calc .gp-tc-read{color:#2563eb;font-weight:800;}
+#gp-kz-calc .gp-tc-unit{font-size:12px;font-weight:500;color:var(--gp-muted);}
+#gp-kz-calc .gp-tc-span{grid-column:1/-1;}
+#gp-kz-calc .gp-tc-presets{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;}
+#gp-kz-calc .gp-tc-presets.gp-tc-seg{margin:0 0 12px;}
+#gp-kz-calc .gp-tc-preset{appearance:none;border:1px solid #c5d5eb;border-radius:999px;background:#f2f7ff;color:#214a83;padding:7px 11px;font:inherit;font-size:12px;font-weight:750;cursor:pointer;}
+#gp-kz-calc .gp-tc-preset:hover,#gp-kz-calc .gp-tc-preset:focus{background:#e7f0ff;border-color:#7da5dc;outline:none;}
+#gp-kz-calc .gp-tc-preset[aria-pressed="true"]{background:#e7f0ff;border-color:#7da5dc;color:#214a83;box-shadow:inset 0 0 0 1px #7da5dc;}
+#gp-kz-calc .gp-tc-presets-label{display:block;margin:0 0 -2px;font-size:13px;font-weight:700;line-height:1.4;color:#123c7d;}
+#gp-kz-calc .gp-tc-note{font-size:12px;line-height:1.5;color:var(--gp-muted);margin:10px 0 0;}
+#gp-kz-calc .gp-tc-info-line{margin:12px 0 0;line-height:1.5;font-size:13px;color:#334966;}
+#gp-kz-calc .gp-tc-label-note{display:block;margin-top:2px;font-size:11px;line-height:1.3;font-weight:500;color:var(--gp-muted);}
+#gp-kz-calc .gp-tc-results{background:linear-gradient(155deg,#123c7d,#2563eb 60%,#0ea5e9);border-radius:18px;padding:24px;color:#fff;box-shadow:0 24px 50px -14px rgba(18,60,125,.38);}
+#gp-kz-calc .gp-tc-results *{color:#fff!important;}
+#gp-kz-calc .gp-tc-results-title{font-size:17px;line-height:1.35;font-weight:850;margin:0 0 14px;}
+#gp-kz-calc .gp-tc-result-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;}
+#gp-kz-calc .gp-tc-metric{padding:12px 11px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:10px;min-width:0;}
+#gp-kz-calc .gp-tc-metric-label{font-size:11px;line-height:1.4;opacity:.84;margin:0 0 7px;}
+#gp-kz-calc .gp-tc-metric-value{font-size:clamp(20px,2.8vw,28px);font-weight:900;line-height:1.1;letter-spacing:-.02em;overflow-wrap:anywhere;margin:0;}
+#gp-kz-calc .gp-tc-metric-unit{font-size:11px;opacity:.82;margin:5px 0 0;line-height:1.4;}
+#gp-kz-calc .gp-tc-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:9px;}
+#gp-kz-calc .gp-tc-steps-cap{display:flex;justify-content:space-between;gap:12px;margin:17px 0 -2px;font-size:12px;line-height:1.4;opacity:.86;}
+#gp-kz-calc .gp-tc-step{padding:10px 11px;background:rgba(255,255,255,.06);border:1px dashed rgba(255,255,255,.28);border-radius:10px;min-width:0;}
+#gp-kz-calc .gp-tc-step.is-chosen{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.55);}
+#gp-kz-calc .gp-tc-step-title{margin:0 0 4px;font-size:13px;font-weight:850;line-height:1.3;}
+#gp-kz-calc .gp-tc-step-text{margin:0;font-size:11px;line-height:1.45;opacity:.86;}
+#gp-kz-calc .gp-tc-bars{margin-top:19px;display:grid;gap:13px;}
+#gp-kz-calc .gp-tc-bar-head{display:flex;justify-content:space-between;gap:12px;font-size:12px;line-height:1.4;margin-bottom:5px;}
+#gp-kz-calc .gp-tc-bar-head strong{font-weight:800;white-space:nowrap;}
+#gp-kz-calc .gp-tc-track{height:10px;background:rgba(255,255,255,.17);border-radius:999px;overflow:hidden;}
+#gp-kz-calc .gp-tc-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,#f59e0b,#f97316);width:0;transition:width .18s ease;}
+#gp-kz-calc .gp-tc-fill.gp-tc-fill-new{background:linear-gradient(90deg,#a7f3d0,#34d399);}
+#gp-kz-calc .gp-tc-output-note{margin:17px 0 0;padding:12px 13px;border:1px solid rgba(255,255,255,.17);border-radius:10px;background:rgba(255,255,255,.09);font-size:13px;line-height:1.55;}
+#gp-kz-calc .gp-tc-demand{margin-top:12px;padding:13px;border:1px solid rgba(255,255,255,.24);border-radius:10px;display:none;font-size:13px;line-height:1.55;background:rgba(255,255,255,.08);}
+#gp-kz-calc .gp-tc-demand.is-visible{display:block;}
+#gp-kz-calc .gp-tc-demand p{margin:0 0 6px;}
+#gp-kz-calc .gp-tc-demand p:last-child{margin-bottom:0;}
+#gp-kz-calc .gp-tc-error{display:none;margin:0 0 14px;padding:11px 13px;border-radius:9px;background:#fff0ef;border:1px solid #f2b8b5;color:#9c211a;font-size:13px;line-height:1.45;font-weight:650;}
+#gp-kz-calc .gp-tc-error.is-visible{display:block;}
+#gp-kz-calc .gp-tc-actions{display:block;margin-top:15px;}
+#gp-kz-calc .gp-tc-button{appearance:none;display:inline-flex;align-items:center;justify-content:center;gap:9px;border:1px solid transparent;border-radius:999px;min-height:43px;padding:11px 17px;background:linear-gradient(135deg,#2563eb,#0ea5e9);color:#fff;font:inherit;font-size:13px;line-height:1.35;font-weight:800;text-align:center;cursor:pointer;box-shadow:0 6px 18px rgba(37,99,235,.24);}
+#gp-kz-calc .gp-tc-button:hover,#gp-kz-calc .gp-tc-button:focus{background:linear-gradient(135deg,#1d4ed8,#0284c7);outline:2px solid rgba(255,255,255,.35);}
+#gp-kz-calc .gp-tc-copy-button{width:100%;margin-top:4px;min-height:43px;color:#fff;background:linear-gradient(135deg,#2563eb,#0ea5e9);box-shadow:0 6px 18px rgba(37,99,235,.3);}
+#gp-kz-calc .gp-tc-copy-button svg{width:17px;height:17px;flex:0 0 auto;fill:none;stroke:currentColor;stroke-width:2;}
+#gp-kz-calc .gp-tc-messengers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:12px;}
+#gp-kz-calc .gp-tc-messenger{display:flex;align-items:center;justify-content:center;gap:6px;min-width:0;min-height:40px;padding:11px 6px;border:0;border-radius:10px;color:#fff!important;font-family:inherit;font-size:12px;line-height:1.3;font-weight:700;text-align:center;text-decoration:none;cursor:pointer;transition:transform .2s ease;}
+#gp-kz-calc .gp-tc-messenger:hover{transform:translateY(-1px);}
+#gp-kz-calc .gp-tc-messenger svg{width:16px;height:16px;flex:0 0 auto;fill:currentColor;}
+#gp-kz-calc .gp-tc-wa{background:#25d366;}
+#gp-kz-calc .gp-tc-tg{background:#0088cc;}
+#gp-kz-calc .gp-tc-max{background:linear-gradient(135deg,#2f6bff,#7c3aed);}
+#gp-kz-calc .gp-tc-footnote{font-size:11px;line-height:1.55;color:rgba(255,255,255,.86);margin:14px 0 0;}
+#gp-kz-calc .gp-tc-sr{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+#gp-kz-calc .gp-tc-hidden{display:none!important;}
+.gp-kz-toast{position:fixed;z-index:2147483001;bottom:24px;left:50%;max-width:92vw;padding:12px 20px;transform:translateX(-50%);border-radius:999px;background:#0c2d5e;color:#fff;font-size:14px;font-weight:600;line-height:1.4;text-align:center;box-shadow:0 12px 30px rgba(18,60,125,.28);opacity:0;pointer-events:none;transition:opacity .25s ease;}
+.gp-kz-toast.is-visible{opacity:1;}
+#gp-kz-calc + h2{margin-top:34px;}
+@media(max-width:980px){#gp-kz-calc .gp-tc-shell{padding:22px;}#gp-kz-calc .gp-tc-result-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media(max-width:720px){#gp-kz-calc .gp-tc-shell{padding:17px;border-radius:14px;}#gp-kz-calc .gp-tc-head{padding-bottom:17px;}#gp-kz-calc .gp-tc-grid{grid-template-columns:minmax(0,1fr);gap:11px;}#gp-kz-calc .gp-tc-card{padding:15px;}#gp-kz-calc .gp-tc-results{padding:19px;border-radius:14px;}#gp-kz-calc .gp-tc-result-grid{grid-template-columns:repeat(2,minmax(0,1fr));}#gp-kz-calc .gp-tc-button{width:100%;}}
+@media(max-width:480px){#gp-kz-calc .gp-tc-steps{grid-template-columns:minmax(0,1fr);}}
+@media(max-width:400px){#gp-kz-calc .gp-tc-inputs{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;}#gp-kz-calc .gp-tc-field input,#gp-kz-calc .gp-tc-field select{padding:9px 7px;font-size:14px;}#gp-kz-calc .gp-tc-result-grid,#gp-kz-calc .gp-tc-steps{gap:7px;}#gp-kz-calc .gp-tc-metric{padding:10px 9px;}#gp-kz-calc .gp-tc-step{padding:9px 8px;}#gp-kz-calc .gp-tc-bar-head{font-size:11px;}#gp-kz-calc .gp-tc-messengers{gap:5px;}#gp-kz-calc .gp-tc-messenger{padding:10px 4px;font-size:11px;}}
+</style>
+<h1>Калькулятор тока короткого замыкания и предельной длины линии под автомат B или C</h1>
+<p>Калькулятор считает ток короткого замыкания в самой дальней точке линии и показывает, отключит ли его автомат мгновенно. Если не отключит — подсказывает, что поменять: характеристику C на B, номинал автомата или сечение кабеля, — и называет предельную длину линии для каждого варианта. Это проверка, которую обычно пропускают при ремонте: сечение подобрали по нагреву, автомат по току, а дойдёт ли до него ток замыкания с дальнего конца длинной линии, никто не посчитал. Сечение и автомат удобно сначала подобрать в <a href="/articles/kalkulyator-secheniya-kabelya.html">калькуляторе сечения кабеля</a>, а здесь проверить линию на срабатывание защиты.</p>
+<div id="gp-kz-calc">
+  <div class="gp-tc-shell">
+    <div class="gp-tc-head">
+      <p class="gp-tc-eyebrow">Инженерный калькулятор · электрика</p>
+      <h2>Ток КЗ и предельная длина линии</h2>
+      <p>Выберите типовую линию или задайте автомат, кабель и длину. Калькулятор посчитает ток замыкания фазы на корпус в конце линии, сравнит его с порогом мгновенного срабатывания автомата и покажет, до какой длины защита гарантированно отключит повреждение. Результат обновляется сразу.</p>
+    </div>
+
+    <div class="gp-tc-body">
+      <div class="gp-tc-grid">
+        <section class="gp-tc-card" aria-labelledby="gp-kz-br-title">
+          <h3 id="gp-kz-br-title">1 · Автомат</h3>
+          <p class="gp-tc-help">Типовая линия заполнит все поля сразу. Значения в шаблонах условные: подставьте свой автомат, кабель и длину.</p>
+          <div class="gp-tc-presets gp-tc-seg" aria-label="Типовые линии">
+            <button class="gp-tc-preset" type="button" data-kind="preset" data-in="10" data-curve="B" data-s="1.5" data-len="25" data-mat="cu" aria-pressed="false">Освещение</button>
+            <button class="gp-tc-preset" type="button" data-kind="preset" data-in="16" data-curve="C" data-s="2.5" data-len="25" data-mat="cu" aria-pressed="true">Розетки комнаты</button>
+            <button class="gp-tc-preset" type="button" data-kind="preset" data-in="16" data-curve="C" data-s="2.5" data-len="12" data-mat="cu" aria-pressed="false">Стиральная машина</button>
+            <button class="gp-tc-preset" type="button" data-kind="preset" data-in="32" data-curve="C" data-s="6" data-len="12" data-mat="cu" aria-pressed="false">Варочная панель</button>
+            <button class="gp-tc-preset" type="button" data-kind="preset" data-in="16" data-curve="C" data-s="2.5" data-len="70" data-mat="cu" aria-pressed="false">Гараж или баня</button>
+            <button class="gp-tc-preset" type="button" data-kind="preset" data-in="50" data-curve="C" data-s="10" data-len="20" data-mat="cu" aria-pressed="false">Ввод в квартиру</button>
+            <button class="gp-tc-preset" type="button" data-kind="preset" data-in="40" data-curve="C" data-s="16" data-len="40" data-mat="al" aria-pressed="false">Ввод в дом, алюминий</button>
+          </div>
+          <div class="gp-tc-presets gp-tc-seg" aria-label="Характеристика автомата">
+            <button class="gp-tc-preset" type="button" data-kind="curve" data-v="B" aria-pressed="false">Характеристика B</button>
+            <button class="gp-tc-preset" type="button" data-kind="curve" data-v="C" aria-pressed="true">Характеристика C</button>
+            <button class="gp-tc-preset" type="button" data-kind="curve" data-v="D" aria-pressed="false">Характеристика D</button>
+          </div>
+          <div class="gp-tc-inputs">
+            <div class="gp-tc-field">
+              <label for="gp-kz-in">Номинал автомата</label>
+              <select id="gp-kz-in">
+                <option value="6">6 А</option><option value="10">10 А</option><option value="16" selected>16 А</option><option value="20">20 А</option><option value="25">25 А</option><option value="32">32 А</option><option value="40">40 А</option><option value="50">50 А</option><option value="63">63 А</option><option value="80">80 А</option><option value="100">100 А</option><option value="125">125 А</option>
+              </select>
+            </div>
+            <div class="gp-tc-field">
+              <label for="gp-kz-mult">Отсечка, × In <span class="gp-tc-label-note">B — 5, C — 10, D — 20</span></label>
+              <input id="gp-kz-mult" type="number" min="2" max="30" step="0.5" value="10" inputmode="decimal">
+            </div>
+          </div>
+          <p class="gp-tc-note" id="gp-kz-curve-note">Характеристика C: мгновенный расцепитель срабатывает при токе от 5 до 10 номиналов. Для гарантии берётся верхняя граница — 10 × In.</p>
+          <p class="gp-tc-info-line">Ток гарантированного мгновенного отключения: <strong id="gp-kz-ia-line">160 А</strong></p>
+        </section>
+
+        <section class="gp-tc-card" aria-labelledby="gp-kz-cab-title">
+          <h3 id="gp-kz-cab-title">2 · Кабель и длина</h3>
+          <p class="gp-tc-help">Ток замыкания проходит по фазной жиле до места повреждения и возвращается по защитному проводнику PE. Чем длиннее и тоньше жилы, тем он меньше.</p>
+          <div class="gp-tc-presets gp-tc-seg" aria-label="Материал жилы">
+            <button class="gp-tc-preset" type="button" data-kind="mat" data-v="cu" aria-pressed="true">Медь</button>
+            <button class="gp-tc-preset" type="button" data-kind="mat" data-v="al" aria-pressed="false">Алюминий</button>
+          </div>
+          <div class="gp-tc-inputs">
+            <div class="gp-tc-field">
+              <label for="gp-kz-s">Сечение фазной жилы</label>
+              <select id="gp-kz-s"></select>
+            </div>
+            <div class="gp-tc-field">
+              <label for="gp-kz-pe">Сечение PE</label>
+              <select id="gp-kz-pe"></select>
+            </div>
+            <div class="gp-tc-field gp-tc-span">
+              <label for="gp-kz-len">Длина линии в одну сторону: <span class="gp-tc-read" id="gp-kz-len-read">25 м</span></label>
+              <input id="gp-kz-len" type="number" min="0.5" max="2000" step="1" value="25" inputmode="decimal" aria-describedby="gp-kz-len-note">
+              <input id="gp-kz-len-range" type="range" min="1" max="150" step="1" value="25" aria-label="Длина линии, ползунок">
+            </div>
+          </div>
+          <p class="gp-tc-note" id="gp-kz-len-note">Длина — по трассе от щита до самой дальней розетки или прибора, с подъёмами и опусками. Удлинитель или шнур прибора тоже входит в петлю и уменьшает ток замыкания.</p>
+        </section>
+
+        <section class="gp-tc-card" aria-labelledby="gp-kz-net-title">
+          <h3 id="gp-kz-net-title">3 · Сеть до щита</h3>
+          <p class="gp-tc-help">Часть сопротивления петли — это сеть до вашего щита: трансформатор, кабели, стояк. Если её замеряли, расчёт будет точнее.</p>
+          <div class="gp-tc-presets gp-tc-seg" aria-label="Что известно о сети">
+            <button class="gp-tc-preset" type="button" data-kind="net" data-v="conv" aria-pressed="true">Сопротивление сети неизвестно</button>
+            <button class="gp-tc-preset" type="button" data-kind="net" data-v="zs" aria-pressed="false">Есть замер петли на щите</button>
+          </div>
+          <div class="gp-tc-inputs">
+            <div class="gp-tc-field">
+              <label for="gp-kz-u">Фазное напряжение, В <span class="gp-tc-label-note">По ГОСТ 29322 — 230 В</span></label>
+              <input id="gp-kz-u" type="number" min="100" max="280" step="1" value="230" inputmode="decimal">
+            </div>
+            <div class="gp-tc-field gp-tc-hidden" id="gp-kz-zs-field">
+              <label for="gp-kz-zs">Петля фаза-ноль на щите, Ом <span class="gp-tc-label-note">Из протокола замеров</span></label>
+              <input id="gp-kz-zs" type="number" min="0.01" max="5" step="0.01" value="0.5" inputmode="decimal">
+            </div>
+          </div>
+          <p class="gp-tc-note" id="gp-kz-net-note">Без замера калькулятор принимает, что при замыкании напряжение на щите проседает до 80 % номинального. Этот условный приём применяют в европейской практике проектирования для оценки минимального тока КЗ.</p>
+          <p class="gp-tc-info-line">Сеть до щита: <strong id="gp-kz-net-line">учтена просадкой напряжения до 80 %</strong></p>
+        </section>
+
+        <section class="gp-tc-card" aria-labelledby="gp-kz-prot-title">
+          <h3 id="gp-kz-prot-title">4 · УЗО и отключающая способность</h3>
+          <p class="gp-tc-help">УЗО меняет вывод о защите людей, а отключающая способность автомата нужна, если на щите известен ток КЗ.</p>
+          <div class="gp-tc-inputs">
+            <div class="gp-tc-field gp-tc-span">
+              <label for="gp-kz-rcd">УЗО или дифавтомат на этой линии</label>
+              <select id="gp-kz-rcd">
+                <option value="none">Нет</option>
+                <option value="30" selected>Есть, 30 мА</option>
+                <option value="300">Есть, 100–300 мА</option>
+              </select>
+            </div>
+            <div class="gp-tc-field gp-tc-span">
+              <label for="gp-kz-icn">Отключающая способность автомата <span class="gp-tc-label-note">Цифра в прямоугольнике на корпусе</span></label>
+              <select id="gp-kz-icn">
+                <option value="4500">4,5 кА (4500)</option>
+                <option value="6000" selected>6 кА (6000)</option>
+                <option value="10000">10 кА (10000)</option>
+              </select>
+            </div>
+          </div>
+          <p class="gp-tc-note">По ПУЭ (п. 1.7.79) в системе TN при фазном напряжении 220–230 В повреждение на групповой линии должно отключаться не дольше чем за 0,4 с. Мгновенный расцепитель отключает быстрее 0,1 с, поэтому калькулятор проверяет именно его.</p>
+        </section>
+      </div>
+
+      <div class="gp-tc-error" id="gp-kz-error" role="alert" aria-live="polite"></div>
+      <section class="gp-tc-results" aria-live="polite" aria-atomic="false">
+        <h3 class="gp-tc-results-title">Результат проверки</h3>
+        <div class="gp-tc-result-grid">
+          <div class="gp-tc-metric"><p class="gp-tc-metric-label">Ток КЗ в конце линии</p><p class="gp-tc-metric-value" id="gp-kz-ik">—</p><p class="gp-tc-metric-unit" id="gp-kz-ik-unit">—</p></div>
+          <div class="gp-tc-metric"><p class="gp-tc-metric-label">Нужно для отсечки</p><p class="gp-tc-metric-value" id="gp-kz-ia">—</p><p class="gp-tc-metric-unit" id="gp-kz-ia-unit">—</p></div>
+          <div class="gp-tc-metric"><p class="gp-tc-metric-label">Предельная длина</p><p class="gp-tc-metric-value" id="gp-kz-lmax">—</p><p class="gp-tc-metric-unit" id="gp-kz-lmax-unit">—</p></div>
+          <div class="gp-tc-metric"><p class="gp-tc-metric-label">Отключит мгновенно</p><p class="gp-tc-metric-value" id="gp-kz-ok">—</p><p class="gp-tc-metric-unit" id="gp-kz-ok-unit">—</p></div>
+        </div>
+        <div class="gp-tc-steps-cap"><span>Тот же номинал с другой характеристикой</span><strong id="gp-kz-cap-curve">16 А</strong></div>
+        <div class="gp-tc-steps" id="gp-kz-steps-curve" aria-label="Сравнение характеристик B, C, D"></div>
+        <div class="gp-tc-steps-cap"><span>Соседние сечения при том же автомате</span><strong id="gp-kz-cap-size">C16</strong></div>
+        <div class="gp-tc-steps" id="gp-kz-steps-size" aria-label="Соседние сечения"></div>
+        <div class="gp-tc-bars">
+          <div>
+            <div class="gp-tc-bar-head"><span>Длина линии от предельной</span><strong id="gp-kz-bar-len-label">—</strong></div>
+            <div class="gp-tc-track"><div class="gp-tc-fill gp-tc-fill-new" id="gp-kz-bar-len"></div></div>
+          </div>
+          <div>
+            <div class="gp-tc-bar-head"><span>Порог отсечки от тока КЗ</span><strong id="gp-kz-bar-ia-label">—</strong></div>
+            <div class="gp-tc-track"><div class="gp-tc-fill gp-tc-fill-new" id="gp-kz-bar-ia"></div></div>
+          </div>
+          <div class="gp-tc-hidden" id="gp-kz-bar-icn-box">
+            <div class="gp-tc-bar-head"><span>Ток КЗ на щите от отключающей способности</span><strong id="gp-kz-bar-icn-label">—</strong></div>
+            <div class="gp-tc-track"><div class="gp-tc-fill gp-tc-fill-new" id="gp-kz-bar-icn"></div></div>
+          </div>
+        </div>
+        <div class="gp-tc-output-note" id="gp-kz-summary">Расчёт появится после загрузки страницы.</div>
+        <div class="gp-tc-demand" id="gp-kz-advice"></div>
+        <div class="gp-tc-actions">
+          <button type="button" class="gp-tc-button gp-tc-copy-button" id="gp-kz-copy"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>Скопировать расчёт</button>
+          <div class="gp-tc-messengers" aria-label="Отправить расчёт инженеру">
+            <a href="https://api.whatsapp.com/send?phone=79037563275" class="gp-tc-messenger gp-tc-wa" id="gp-kz-wa" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.008-.57-.008-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"></path></svg>WhatsApp</a>
+            <a href="https://t.me/altwire" class="gp-tc-messenger gp-tc-tg" id="gp-kz-tg" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"></path></svg>Telegram</a>
+            <button class="gp-tc-messenger gp-tc-max" id="gp-kz-max" type="button"><svg viewBox="0 0 720 720" aria-hidden="true"><path fill="#fff" d="M350.4,9.6C141.8,20.5,4.1,184.1,12.8,390.4c3.8,90.3,40.1,168,48.7,253.7,2.2,22.2-4.2,49.6,21.4,59.3,31.5,11.9,79.8-8.1,106.2-26.4,9-6.1,17.6-13.2,24.2-22,27.3,18.1,53.2,35.6,85.7,43.4,143.1,34.3,299.9-44.2,369.6-170.3C799.6,291.2,622.5,-4.6,350.4,9.6h0ZM269.4,504c-11.3,8.8-22.2,20.8-34.7,27.7-18.1,9.7-23.7-.4-30.5-16.4-21.4-50.9-24-137.6-11.5-190.9,16.8-72.5,72.9-136.3,150-143.1,78-6.9,150.4,32.7,183.1,104.2,72.4,159.1-112.9,316.2-256.4,218.6h0Z"></path></svg>MAX</button>
+          </div>
+        </div>
+        <p class="gp-tc-footnote">Предварительная оценка минимального тока однофазного КЗ (фаза — защитный проводник) по упрощённому методу: сопротивление жил при температуре короткого замыкания, индуктивность учтена надбавкой для сечений от 150 мм². Калькулятор не проверяет термическую стойкость кабеля, селективность, работу теплового расцепителя и автоматы с регулируемой отсечкой. Для щита квартиры или дома расчёт выполняет инженер в проекте электрики, а после монтажа петлю фаза-ноль измеряет электролаборатория.</p>
+      </section>
+      <div id="gp-kz-copy-status" class="gp-tc-sr" role="status" aria-live="polite"></div>
+    </div>
+  </div>
+</div>
+<h2>Коротко</h2>
+<ul>
+  <li><strong>Автомат отключает замыкание мгновенно, только если ток КЗ достаточно велик:</strong> не меньше 5 номиналов для характеристики B, 10 — для C и 20 — для D. Иначе работает тепловой расцепитель, а он может думать секунды и минуты.</li>
+  <li><strong>Ток КЗ в конце линии ограничивает сопротивление петли</strong> «фаза — защитный проводник»: длина, сечение, материал жил и сопротивление сети до щита.</li>
+  <li><strong>Для медного кабеля 2,5 мм² с автоматом C16</strong> предельная длина по упрощённому методу — около 62 м, с автоматом B16 — около 125 м.</li>
+  <li><strong>Если линия длиннее предельной,</strong> помогают характеристика B вместо C, меньший номинал, большее сечение или УЗО. Калькулятор считает каждый вариант.</li>
+  <li><strong>По ПУЭ в системе TN при 220–230 В</strong> повреждение на групповой линии должно отключаться не дольше чем за 0,4 с.</li>
+</ul>
+<h2>Как пользоваться калькулятором</h2>
+<ol>
+  <li>Нажмите на типовую линию — освещение, розетки, варочную панель, гараж, ввод — или задайте параметры вручную. Шаблоны заполняют автомат, сечение и длину условными значениями.</li>
+  <li>Выберите характеристику автомата. Она напечатана на корпусе буквой перед номиналом: B16, C16, C25. Поле «Отсечка» заполнится само; его меняют, только если у автомата регулируемый расцепитель и в паспорте указана другая кратность.</li>
+  <li>Укажите материал и сечение жил. Если защитный проводник PE тоньше фазного — например, в старой проводке или в кабеле большого сечения, — выберите его сечение отдельно.</li>
+  <li>Введите длину линии: числом или ползунком. Считайте по трассе от щита до самой дальней точки, с подъёмами к розеткам и опусками к щиту.</li>
+  <li>Если у вас есть протокол электролаборатории с замером сопротивления петли «фаза — ноль» на щите, переключитесь на «Есть замер петли на щите» и введите значение. Расчёт станет точнее и появится проверка отключающей способности автомата.</li>
+  <li>Отметьте, есть ли на линии УЗО или дифавтомат, и посмотрите результат: ток КЗ, порог отсечки, предельную длину и вывод. Ниже — сравнение характеристик B, C, D и соседних сечений. Готовый расчёт можно скопировать или отправить инженеру.</li>
+</ol>
+<h2>Зачем проверять ток короткого замыкания</h2>
+<p>У модульного автомата два расцепителя. Тепловой срабатывает при перегрузке: чем больше ток, тем быстрее, но всё равно это секунды, а при небольшом превышении — минуты. Электромагнитный срабатывает мгновенно, за сотые доли секунды, но только если ток превысил порог: для характеристики B — от 3 до 5 номиналов, для C — от 5 до 10, для D — от 10 до 20. Эти диапазоны установлены ГОСТ IEC 60898-1-2020 для автоматов бытового и аналогичного назначения.</p>
+<p>Представьте линию розеток в гараж: автомат C16, кабель 2,5 мм², 70 м. В розетке пробило изоляцию, фаза замкнулась на металлический корпус инструмента. Ток пошёл по фазной жиле до корпуса и вернулся по защитному проводнику. Сопротивление этой петли на 70 м ощутимое, и ток замыкания получается около 140 А. Порог мгновенного отключения автомата C16 — 160 А. Электромагнитный расцепитель может не сработать, тепловой отключит через несколько секунд. Всё это время на корпусе инструмента и на всём, что соединено с защитным проводником, опасное напряжение, а кабель греется током в девять раз больше номинала.</p>
+<p>Поэтому ПУЭ (п. 1.7.79) ограничивает время автоматического отключения питания в системе TN: при фазном напряжении 220 В — не более 0,4 с для групповых линий. Для распределительных линий, которые питают щиты, допускается до 5 с. ГОСТ Р 50571.4.41-2022 (идентичен МЭК 60364-4-41) задаёт то же время 0,4 с для напряжения 230 В. Самый надёжный способ уложиться — чтобы ток КЗ в любой точке линии был не меньше порога мгновенного расцепителя. Это и проверяет калькулятор.</p>
+<h2>Как калькулятор считает ток КЗ</h2>
+<h3>Петля «фаза — защитный проводник»</h3>
+<p>При замыкании фазы на корпус ток проходит путь: трансформатор подстанции — кабели до дома — вводно-распределительное устройство — стояк — щит квартиры — фазная жила вашей линии — место повреждения — защитный проводник PE — и обратно. Ток равен фазному напряжению, делённому на сопротивление всей этой петли. Часть петли до щита от вас не зависит, а сопротивление линии от щита до повреждения калькулятор считает по формуле:</p>
+<ul>
+  <li>R линии = ρ × L × (1 / Sф + 1 / SPE), где L — длина в одну сторону, Sф и SPE — сечения фазной жилы и защитного проводника;</li>
+  <li>ρ — удельное сопротивление жилы при нагреве током короткого замыкания: 0,023 Ом·мм²/м для меди и 0,037 Ом·мм²/м для алюминия.</li>
+</ul>
+<p>Удельное сопротивление взято больше, чем у холодной меди (около 0,0175), потому что за время замыкания жила успевает нагреться, а её сопротивление — вырасти. Для сечения 50 мм² в расчёт подставляется фактическое сечение 47,5 мм², а для кабелей от 150 мм² сопротивление увеличено на 15–25 %, чтобы учесть индуктивность. На малых сечениях, которые встречаются в квартире, индуктивность почти не влияет.</p>
+<h3>Если сопротивление сети неизвестно</h3>
+<p>Чаще всего так и бывает: замера петли на щите нет, а сопротивление трансформатора и внешних сетей неизвестно. Тогда калькулятор применяет условный метод, принятый в европейских руководствах по проектированию: напряжение в начале линии при замыкании принимается равным 80 % номинального. Эта просадка как раз и отражает сопротивление сети до щита. Формулы получаются простыми:</p>
+<ul>
+  <li>ток КЗ в конце линии: Iк = 0,8 × U0 / R линии;</li>
+  <li>предельная длина: Lmax = 0,8 × U0 × Sф / (ρ × (1 + m) × Ia), где m = Sф / SPE, а Ia — ток гарантированного срабатывания отсечки.</li>
+</ul>
+<p>Для медного кабеля 2,5 мм² с автоматом C16 получается 0,8 × 230 × 2,5 / (0,023 × 2 × 160) ≈ 62 м. Это совпадает с опубликованными таблицами предельных длин для бытовых автоматов, рассчитанными тем же методом.</p>
+<h3>Если есть замер петли на щите</h3>
+<p>Электролаборатория при приёмо-сдаточных испытаниях измеряет сопротивление петли «фаза — ноль» прибором прямо на щите или на розетках. Значение на щите включает всю внешнюю сеть. Тогда калькулятор считает без условной просадки: Iк = U0 / (Zщ + R линии), где Zщ — замеренное сопротивление на щите. Предельная длина: Lmax = (U0 / Ia − Zщ) / ρ / (1 / Sф + 1 / SPE).</p>
+<p>В этом режиме калькулятор показывает ещё один показатель — ток КЗ прямо на щите, U0 / Zщ. Это самый большой ток, который придётся разорвать автомату при замыкании рядом со щитом. Он должен быть меньше отключающей способности автомата: 4500, 6000 или 10 000 А — это число в прямоугольнике на корпусе. В городских домах рядом с подстанцией отключающей способности 4,5 кА бывает недостаточно, поэтому в проектах для квартир обычно закладывают автоматы на 6 кА и больше.</p>
+<h3>Порог мгновенного срабатывания</h3>
+<p>Для каждой характеристики калькулятор берёт верхнюю границу диапазона: 5 × In для B, 10 × In для C, 20 × In для D. Именно верхняя граница гарантирует мгновенное отключение любого автомата этой характеристики, а не только удачного экземпляра. Конкретный автомат может сработать и раньше — например, C16 при 100 А, — но рассчитывать на это нельзя. Для автоматов с регулируемым расцепителем, которые ставят на вводах и в распределительных щитах, кратность берут из паспорта и вводят в поле «Отсечка».</p>
+<h2>Предельная длина линии: ориентиры</h2>
+<p>Значения рассчитаны этим калькулятором по условному методу для медного кабеля, защитный проводник того же сечения, что и фазный. Они округлены в меньшую сторону и годятся как первая прикидка:</p>
+<ul>
+  <li><strong>1,5 мм²:</strong> B10 — до 120 м, C10 — до 60 м, B16 — до 75 м, C16 — до 37 м;</li>
+  <li><strong>2,5 мм²:</strong> B16 — до 125 м, C16 — до 62 м, C20 — до 50 м, C25 — до 40 м;</li>
+  <li><strong>4 мм²:</strong> C16 — до 100 м, C25 — до 64 м, C32 — до 50 м;</li>
+  <li><strong>6 мм²:</strong> C25 — до 96 м, C32 — до 75 м, C40 — до 60 м;</li>
+  <li><strong>10 мм²:</strong> C40 — до 100 м, C50 — до 80 м, C63 — до 63 м.</li>
+</ul>
+<p>Для алюминия предельная длина примерно в 1,6 раза меньше: алюминиевый кабель 2,5 мм² с автоматом C16 — около 38 м. Если защитный проводник вдвое тоньше фазного, длина сокращается на треть. В квартире типичные линии длиной 15–30 м проходят с большим запасом. Проблемы начинаются на дачах и в частных домах: розетки в гараже, бане, на летней кухне, уличное освещение, насос в скважине.</p>
+<h2>Примеры расчёта</h2>
+<p>Значения в примерах условные и посчитаны этим калькулятором. Медь, защитный проводник того же сечения, напряжение 230 В.</p>
+<h3>Розетки в комнате: C16, 2,5 мм², 25 м</h3>
+<p>Сопротивление петли линии: 0,023 × 25 × (1/2,5 + 1/2,5) = 0,46 Ом. Ток КЗ в конце: 0,8 × 230 / 0,46 = 400 А. Порог отсечки C16 — 160 А. Запас — в 2,5 раза, предельная длина — 62 м. <strong>Автомат отключит замыкание мгновенно.</strong> Так проходит почти любая розеточная группа в квартире.</p>
+<h3>Розетки в гараже: C16, 2,5 мм², 70 м</h3>
+<p>Сопротивление петли — 1,29 Ом, ток КЗ — около 143 А, порог — 160 А. <strong>Мгновенного отключения нет.</strong> Калькулятор предлагает варианты: автомат B16 с порогом 80 А проходит с запасом, предельная длина для него — 125 м; кабель 4 мм² с тем же C16 даёт ток около 229 А и предел 100 м. На такой длине кабель 4 мм² всё равно понадобится по падению напряжения — проверьте это в <a href="/articles/kalkulyator-secheniya-kabelya.html">калькуляторе сечения</a>.</p>
+<h3>Варочная панель: C32, 6 мм², 12 м</h3>
+<p>Сопротивление петли — 0,092 Ом, ток КЗ — около 2000 А при пороге 320 А. Предельная длина — 75 м. Короткая мощная линия ограничений по току КЗ не имеет. Если бы панель подключили кабелем 4 мм², предел сократился бы до 50 м — для кухни всё равно достаточно.</p>
+<h3>Частный дом с замером: C25, 4 мм², 60 м, Zщ = 0,6 Ом</h3>
+<p>В частном доме далеко от подстанции электролаборатория намерила на щите 0,6 Ом. Ток КЗ на щите — около 383 А. Линия в гараж: 60 м кабелем 4 мм², автомат C25. Сопротивление линии — 0,69 Ом, ток КЗ в конце — 230 / (0,6 + 0,69) ≈ 178 А, а порог C25 — 250 А. <strong>Не отключит.</strong> Предельная длина для этой связки — всего 27 м. Варианты: B25 — до 107 м, C16 — до 72 м, кабель 10 мм² с C25 — до 69 м. Здесь виден смысл замера: по условному методу та же линия формально прошла бы, потому что 80 % напряжения на щите — оптимистичное допущение для слабой сельской сети.</p>
+<h3>Освещение: B10, 1,5 мм², 25 м</h3>
+<p>Ток КЗ — около 240 А, порог B10 — 50 А, запас почти пятикратный, предельная длина — 120 м. С автоматом C10 предел был бы 60 м. Поэтому на длинные линии освещения, особенно уличного, часто ставят автоматы характеристики B: пусковые токи светодиодных светильников небольшие, а запас по длине вдвое больше.</p>
+<h2>Что делать, если автомат не отключит</h2>
+<p>Калькулятор показывает, на сколько не хватает тока, и считает варианты. Обычно решение — одно из пяти:</p>
+<ul>
+  <li><strong>Поставить автомат характеристики B вместо C.</strong> Порог вдвое ниже, предельная длина вдвое больше. Подходит для розеток, освещения, нагревателей. Не подходит для техники с большими пусковыми токами: компрессоров, насосов, мощных блоков питания — B может срабатывать при включении.</li>
+  <li><strong>Уменьшить номинал автомата.</strong> C10 вместо C16 даёт предел в 1,6 раза больше. Но номинал не должен быть меньше рабочего тока нагрузки.</li>
+  <li><strong>Увеличить сечение.</strong> Переход с 2,5 на 4 мм² увеличивает предельную длину в 1,6 раза, на 6 мм² — в 2,4 раза. Заодно снижается падение напряжения, которое на длинных линиях и так часто требует большего сечения.</li>
+  <li><strong>Поставить УЗО или дифавтомат.</strong> Стандарт на защиту от поражения током допускает выполнять автоматическое отключение питания в системе TN с помощью УЗО. УЗО 30 мА отключит замыкание на корпус за доли секунды при любом токе КЗ. Но перегрузку и сам ток замыкания между фазой и нулём УЗО не отключает — это по-прежнему задача автомата.</li>
+  <li><strong>Разделить линию или перенести щит ближе.</strong> Для гаража, бани, гостевого дома часто проще проложить питающую линию большего сечения и поставить там отдельный щиток со своими автоматами.</li>
+</ul>
+<p>После монтажа расчёт подтверждают измерением: электролаборатория замеряет сопротивление петли на самых удалённых розетках и сравнивает ток КЗ с порогом автомата. Если замер хуже расчёта — где-то плохой контакт, скрутка или тонкий участок кабеля.</p>
+<h2>Автомат B или C: что выбрать для квартиры и дома</h2>
+<p>В квартирных щитах по привычке ставят автоматы характеристики C почти на все линии. Для коротких квартирных групп это оправдано: ток КЗ большой, а C не реагирует на пусковые токи. Но характеристика B тоже работает в квартире и даёт больше запаса по длине.</p>
+<ul>
+  <li><strong>B</strong> — освещение, особенно длинные и уличные линии; розетки в удалённых помещениях; электрообогреватели и тёплые полы с резистивным кабелем.</li>
+  <li><strong>C</strong> — розеточные группы квартиры, кухонная техника, стиральные и посудомоечные машины, кондиционеры, линии с импульсными блоками питания.</li>
+  <li><strong>D</strong> — двигатели, компрессоры и насосы с тяжёлым пуском, сварочное оборудование. Порог высокий, поэтому линия должна быть короткой и достаточного сечения.</li>
+</ul>
+<p>Выбор характеристики увязывают с селективностью: при замыкании на групповой линии должен отключиться её автомат, а не вводной. Это проверяется в проекте электрики вместе со всем щитом.</p>
+<h2>Как узнать сопротивление петли «фаза — ноль»</h2>
+<p>Измерить петлю может электролаборатория специальным прибором. Измерение входит в приёмо-сдаточные испытания электроустановки по главе 1.8 ПУЭ, и его результаты оформляют протоколом. В новостройке такой протокол иногда есть у управляющей компании или застройщика на этажные щиты; в частном доме замер заказывают после монтажа.</p>
+<p>Значение на щите квартиры обычно намного меньше сопротивления длинной групповой линии, поэтому в городе условный метод даёт близкий результат. В частных домах, на дачах и в посёлках, питающихся длинной воздушной линией, разница бывает большой — как в примере выше. Если дом далеко от подстанции, замер на щите стоит сделать до выбора автоматов на длинные линии.</p>
+<h2>Типичные ошибки</h2>
+<ul>
+  <li><strong>Подбирать кабель только по нагреву и падению напряжения</strong> и не проверять ток КЗ. На длинной линии кабель по нагреву проходит, а автомат замыкание мгновенно не отключит.</li>
+  <li><strong>Считать порог C16 равным 80 А,</strong> то есть по нижней границе диапазона. Гарантированно мгновенно автомат C16 отключится только при 160 А.</li>
+  <li><strong>Забывать про обратный путь тока.</strong> Ток КЗ проходит по фазной жиле и по защитному проводнику, поэтому в формуле длина участвует дважды, а тонкий PE заметно уменьшает ток.</li>
+  <li><strong>Мерить длину по плану по прямой.</strong> Реальная трасса со спусками к розеткам и обходами длиннее на 20–40 %.</li>
+  <li><strong>Не учитывать удлинители.</strong> Удлинитель 10 м с жилами 1 мм² добавляет к петле почти столько же, сколько 25 м кабеля 2,5 мм².</li>
+  <li><strong>Ставить на длинную линию C25 «с запасом».</strong> Чем больше номинал, тем выше порог отсечки и короче допустимая линия.</li>
+  <li><strong>Полагаться на условный метод в слабой сельской сети.</strong> Если до подстанции далеко, нужен замер петли на щите.</li>
+  <li><strong>Не проверять отключающую способность.</strong> Автомат на 4,5 кА рядом с мощной подстанцией может не разорвать ток КЗ на щите.</li>
+</ul>
+<h2>Частые вопросы</h2>
+<h3>Какая максимальная длина кабеля 2,5 мм² для автомата C16?</h3>
+<p>По условному методу для медного кабеля с защитным проводником того же сечения — около 62 м. С автоматом B16 — около 125 м. Если сеть до щита слабая и замер петли показывает больше 0,3–0,5 Ом, предел будет меньше; введите своё значение в калькулятор.</p>
+<h3>Почему калькулятор берёт 10 номиналов для C, если диапазон 5–10?</h3>
+<p>Диапазон означает, что разные экземпляры автоматов C срабатывают мгновенно при разных токах — от 5 до 10 номиналов. Гарантию дают только 10 номиналов: при таком токе отключится любой исправный автомат характеристики C. Расчёт по нижней границе завышает допустимую длину вдвое.</p>
+<h3>Что будет, если ток КЗ меньше порога отсечки?</h3>
+<p>Сработает тепловой расцепитель, но не мгновенно: при токе в 5–9 номиналов это обычно от долей секунды до нескольких секунд в зависимости от экземпляра и температуры. Всё это время на корпусах оборудования опасное напряжение, а кабель перегревается. Норма в 0,4 с для групповой линии может не выполняться.</p>
+<h3>Спасает ли УЗО, если автомат не отключает КЗ?</h3>
+<p>От поражения током при замыкании на корпус — да: УЗО отключит линию по току утечки за доли секунды. Но при замыкании фазы на ноль ток утечки не возникает, и УЗО не сработает. Поэтому УЗО — хорошее дополнение, но не повод ставить на длинную линию автомат с завышенным порогом.</p>
+<h3>Нужен ли этот расчёт для квартиры в новостройке?</h3>
+<p>Для обычных групп длиной до 30–40 м медным кабелем 2,5 мм² с автоматом C16 проверка почти всегда проходит с запасом. Проверять стоит длинные линии в больших квартирах, линии на лоджии и в кладовые, а также случаи, когда защитный проводник тоньше фазного. В частном доме проверка нужна всегда.</p>
+<h3>Чем этот расчёт отличается от ГОСТ 28249-93?</h3>
+<p>ГОСТ 28249-93 описывает полный метод расчёта токов КЗ в электроустановках до 1 кВ: с сопротивлениями трансформатора, контактов, дуги и индуктивностями всех элементов. Калькулятор использует упрощённую оценку минимального тока однофазного замыкания, которой достаточно, чтобы проверить длину групповой линии. Для щита и вводов инженер выполняет полный расчёт в проекте.</p>
+<h3>Можно ли применять калькулятор к трёхфазной линии?</h3>
+<p>Да. Проверяется замыкание одной фазы на корпус, а оно в трёхфазной линии считается так же, как в однофазной: по фазному напряжению 230 В и петле «фаза — защитный проводник». Межфазное замыкание даёт больший ток и проверку не ограничивает.</p>
+<h2>Нормативная основа</h2>
+<ul>
+  <li><strong>ПУЭ, глава 1.7, п. 1.7.79 и табл. 1.7.1</strong> — наибольшее допустимое время автоматического отключения в системе TN: 0,4 с при фазном напряжении 220 В, до 5 с для распределительных линий.</li>
+  <li><strong>ГОСТ Р 50571.4.41-2022</strong> (МЭК 60364-4-41:2017) — защита от поражения электрическим током, время отключения в системе TN и применение УЗО для автоматического отключения питания.</li>
+  <li><strong>ГОСТ IEC 60898-1-2020</strong> — автоматические выключатели бытового и аналогичного назначения: диапазоны мгновенного расцепления B, C, D и отключающая способность.</li>
+  <li><strong>ГОСТ 28249-93</strong> — методы расчёта токов короткого замыкания в электроустановках переменного тока до 1 кВ. В 2024–2025 годах обсуждался проект новой редакции.</li>
+  <li><strong>ПУЭ, глава 1.8</strong> — нормы приёмо-сдаточных испытаний, в том числе проверка срабатывания защиты при замыкании в системе TN.</li>
+  <li><strong>ГОСТ 29322-2014</strong> — стандартные напряжения 230/400 В.</li>
+</ul>
+<p>Перед проектированием проверяйте актуальную редакцию документов: нормы и пункты меняются.</p>
+<h2>Вывод</h2>
+<p>Автомат защищает линию по-настоящему, только если ток замыкания с самого дальнего конца достаточен для мгновенного срабатывания: 5 номиналов для B, 10 — для C, 20 — для D. Этот ток ограничивает сопротивление петли из фазной жилы и защитного проводника, поэтому у каждой связки «автомат — сечение» есть предельная длина. В квартире она почти всегда с запасом, на даче и в частном доме — нет. Калькулятор показывает предельную длину и подсказывает, что поменять: характеристику, номинал, сечение или добавить УЗО. Для всего щита — с разбивкой на группы, селективностью и проверкой вводов — нужен проект; подробнее в статье <a href="/articles/zachem-proekt-elektriki.html">зачем нужен проект электрики</a>, а о месте для щита — в материале <a href="/articles/razmeshhenie-elektroshhita-v-kvartire.html">о размещении электрощита в квартире</a>.</p>
+<p><strong>Следующий шаг: посмотрите, что входит в <a href="/proekt/elektrosnabzhenie-kvartiry.html">проект электрики квартиры</a>, и рассчитайте стоимость проекта инженерных систем в <a href="/#calc">калькуляторе</a>. Если хотите, чтобы инженер проверил ваш расчёт, отправьте его кнопкой WhatsApp, Telegram или MAX под результатом и приложите планировку.</strong></p>
+<script>
+(function(){
+  function initKzCalculator(){
+  /* Сечения, номиналы, удельное сопротивление жил при температуре КЗ (Ом·мм²/м) */
+  var SIZES={cu:[1.5,2.5,4,6,10,16,25,35,50,70,95,120,150,185,240],al:[2.5,4,6,10,16,25,35,50,70,95,120,150,185,240]};
+  var BREAKERS=[6,10,16,20,25,32,40,50,63,80,100,125];
+  var MAT={cu:{name:'медь',rho:0.023},al:{name:'алюминий',rho:0.037}};
+  var CURVE={B:{k:5,range:'от 3 до 5',note:'Характеристика B: мгновенный расцепитель срабатывает при токе от 3 до 5 номиналов. Для гарантии берётся верхняя граница — 5 × In.'},
+    C:{k:10,range:'от 5 до 10',note:'Характеристика C: мгновенный расцепитель срабатывает при токе от 5 до 10 номиналов. Для гарантии берётся верхняя граница — 10 × In.'},
+    D:{k:20,range:'от 10 до 20',note:'Характеристика D: мгновенный расцепитель срабатывает при токе от 10 до 20 номиналов. Для гарантии берётся верхняя граница — 20 × In.'}};
+  function seff(s){return s===50?47.5:s;}
+  function kx(s){return s>=240?1.25:(s>=185?1.2:(s>=150?1.15:1));}
+  function rPerM(mat,sph,spe){return MAT[mat].rho*(kx(sph)/seff(sph)+kx(spe)/seff(spe));}
+  function ikAt(p,r,len){return p.net==='zs'?p.u/(p.zs+r*len):0.8*p.u/(r*len);}
+  function lmaxFor(p,r,ia){var v=p.net==='zs'?(p.u/ia-p.zs)/r:0.8*p.u/(r*ia);return Math.max(v,0);}
+
+  function calcKz(p){
+    var errors=[];
+    if(!(p.len>=0.5&&p.len<=2000)) errors.push('Длина линии должна быть от 0,5 до 2000 м.');
+    if(!(p.u>=100&&p.u<=280)) errors.push('Фазное напряжение — от 100 до 280 В. Для трёхфазной сети тоже вводится фазное: 230 В.');
+    if(!(p.mult>=2&&p.mult<=30)) errors.push('Кратность отсечки — от 2 до 30 номиналов.');
+    if(p.net==='zs'&&!(p.zs>=0.01&&p.zs<=5)) errors.push('Сопротивление петли на щите — от 0,01 до 5 Ом.');
+    if(errors.length) return {ok:false,errors:errors};
+    var spe=p.pe>0?p.pe:p.s, m=p.s/spe;
+    var r=rPerM(p.mat,p.s,spe), ia=p.mult*p.in;
+    var ik=ikAt(p,r,p.len), lmax=lmaxFor(p,r,ia), pass=ik>=ia-1e-9;
+    var ikShield=p.net==='zs'?p.u/p.zs:0;
+    if(p.net==='zs'&&ikShield<ia) return {ok:false,errors:['Даже на самом щите ток КЗ ≈ '+f(ikShield,0)+' А меньше порога отсечки '+f(ia,0)+' А: при сопротивлении петли '+f(p.zs,2)+' Ом автомат '+p.curve+p.in+' мгновенно не отключит замыкание ни на какой длине. Нужен автомат с меньшим порогом или УЗО, а сеть стоит показать инженеру.']};
+    var curves=['B','C','D'].map(function(c){var ia2=CURVE[c].k*p.in;return {c:c,ia:ia2,lmax:lmaxFor(p,r,ia2),pass:ik>=ia2-1e-9};});
+    var maxIn=0; for(var b=0;b<BREAKERS.length;b++){ if(p.mult*BREAKERS[b]<=ik+1e-9) maxIn=BREAKERS[b]; }
+    var sizes=SIZES[p.mat], rows=[], minS=0, cur=-1;
+    for(var i=0;i<sizes.length;i++){
+      var s=sizes[i], ps=s/m, rs=rPerM(p.mat,s,ps), ls=lmaxFor(p,rs,ia), iks=ikAt(p,rs,p.len);
+      rows.push({s:s,lmax:ls,ik:iks,pass:iks>=ia-1e-9});
+      if(!minS&&iks>=ia-1e-9) minS=s;
+      if(Math.abs(s-p.s)<1e-9) cur=i;
+    }
+    return {ok:true,spe:spe,m:m,r:r,rLine:r*p.len,ia:ia,ik:ik,lmax:lmax,pass:pass,margin:ik/ia,ikShield:ikShield,curves:curves,maxIn:maxIn,rows:rows,cur:cur,minS:minS};
+  }
+
+  var root=document.getElementById('gp-kz-calc');
+  if(!root||root.getAttribute('data-ready')==='1') return;
+  root.setAttribute('data-ready','1');
+  function $(id){return document.getElementById(id);}
+  var st={curve:'C',mat:'cu',net:'conv'};
+  var fields={in:$('gp-kz-in'),mult:$('gp-kz-mult'),s:$('gp-kz-s'),pe:$('gp-kz-pe'),len:$('gp-kz-len'),range:$('gp-kz-len-range'),u:$('gp-kz-u'),zs:$('gp-kz-zs'),rcd:$('gp-kz-rcd'),icn:$('gp-kz-icn')};
+  var lastResult=null, lastParams=null;
+  function num(el){var v=parseFloat(String(el.value).replace(',','.'));return isFinite(v)?v:NaN;}
+  function f(v,d){return Number(v).toLocaleString('ru-RU',{minimumFractionDigits:d||0,maximumFractionDigits:d||0});}
+  function fs(s){return String(s).replace('.',',');}
+  function fl(v){if(!(v>0))return '0';return v>=1000?f(Math.floor(v),0):(v>=10?f(Math.floor(v),0):f(Math.floor(v*10)/10,1));}
+  function pressValue(kind,v){root.querySelectorAll('[data-kind="'+kind+'"]').forEach(function(b){b.setAttribute('aria-pressed',b.getAttribute('data-v')===String(v)?'true':'false');});}
+  function clearPreset(){root.querySelectorAll('[data-kind="preset"]').forEach(function(b){b.setAttribute('aria-pressed','false');});}
+
+  function fillSizes(keepS,keepPe){
+    var list=SIZES[st.mat], h='', hp='<option value="0">Как фазная</option>';
+    list.forEach(function(s){h+='<option value="'+s+'">'+fs(s)+' мм²</option>'; hp+='<option value="'+s+'">'+fs(s)+' мм²</option>';});
+    fields.s.innerHTML=h; fields.pe.innerHTML=hp;
+    var s=parseFloat(keepS); if(list.indexOf(s)<0){ s=list[0]; for(var i=0;i<list.length;i++){ if(list[i]>=keepS){s=list[i];break;} } }
+    fields.s.value=String(s);
+    var pe=parseFloat(keepPe)||0; fields.pe.value=(pe&&list.indexOf(pe)>=0)?String(pe):'0';
+  }
+  function setCurve(c,setMult){ st.curve=c; pressValue('curve',c); if(setMult) fields.mult.value=CURVE[c].k; $('gp-kz-curve-note').textContent=CURVE[c].note; }
+  function setMat(m){ var s=num(fields.s), pe=num(fields.pe); st.mat=m; pressValue('mat',m); fillSizes(s,pe); }
+  function setNet(n){
+    st.net=n; pressValue('net',n);
+    $('gp-kz-zs-field').classList.toggle('gp-tc-hidden',n!=='zs');
+    $('gp-kz-bar-icn-box').classList.toggle('gp-tc-hidden',n!=='zs');
+    $('gp-kz-net-note').textContent=n==='zs'
+      ?'Введите сопротивление петли «фаза — ноль», измеренное на вводе в щит. Значение по умолчанию условное: возьмите своё из протокола электролаборатории.'
+      :'Без замера калькулятор принимает, что при замыкании напряжение на щите проседает до 80 % номинального. Этот условный приём применяют в европейской практике проектирования для оценки минимального тока КЗ.';
+  }
+  function syncLen(src){
+    var v=num(src===fields.range?fields.range:fields.len);
+    if(src===fields.range) fields.len.value=v;
+    else if(v>0) fields.range.value=Math.min(Math.max(v,1),150);
+    $('gp-kz-len-read').textContent=(v>0?fs(v):'—')+' м';
+  }
+
+  function bar(id,ratio,label){
+    var el=$(id); var w=Math.max(Math.min(ratio*100,100),ratio>0?2:0);
+    el.style.width=w+'%'; el.classList.toggle('gp-tc-fill-new',ratio<=0.9);
+    $(id+'-label').textContent=label;
+  }
+  function showError(msgs){
+    var e=$('gp-kz-error'); e.textContent=msgs.join(' '); e.classList.add('is-visible');
+    ['gp-kz-ik','gp-kz-ia','gp-kz-lmax','gp-kz-ok','gp-kz-ik-unit','gp-kz-ia-unit','gp-kz-lmax-unit','gp-kz-ok-unit'].forEach(function(id){$(id).textContent='—';});
+    $('gp-kz-steps-curve').innerHTML=''; $('gp-kz-steps-size').innerHTML='';
+    ['gp-kz-bar-len','gp-kz-bar-ia','gp-kz-bar-icn'].forEach(function(id){$(id).style.width='0';$(id+'-label').textContent='—';});
+    $('gp-kz-summary').textContent='Исправьте исходные данные — результат появится автоматически.';
+    $('gp-kz-advice').innerHTML=''; $('gp-kz-advice').classList.remove('is-visible');
+    lastResult=null;
+  }
+
+  function renderCurves(r,p){
+    var h='';
+    r.curves.forEach(function(c){
+      var chosen=c.c===p.curve&&Math.abs(p.mult-CURVE[c.c].k)<1e-9;
+      var txt='отсечка '+f(c.ia,0)+' А · до '+fl(c.lmax)+' м · '+(c.pass?'отключит':'не отключит');
+      h+='<div class="gp-tc-step'+(chosen?' is-chosen':'')+'"><p class="gp-tc-step-title">'+c.c+p.in+(chosen?' · выбран':'')+'</p><p class="gp-tc-step-text">'+txt+'</p></div>';
+    });
+    $('gp-kz-steps-curve').innerHTML=h; $('gp-kz-cap-curve').textContent=p.in+' А · '+fs(p.s)+' мм² · '+fs(p.len)+' м';
+  }
+  function renderSizes(r,p){
+    var i0=Math.max(r.cur-1,0), i1=Math.min(r.cur+1,r.rows.length-1); if(r.cur===0) i1=Math.min(2,r.rows.length-1); if(r.cur===r.rows.length-1) i0=Math.max(r.rows.length-3,0);
+    var h='';
+    for(var i=i0;i<=i1;i++){ var row=r.rows[i];
+      h+='<div class="gp-tc-step'+(i===r.cur?' is-chosen':'')+'"><p class="gp-tc-step-title">'+fs(row.s)+' мм²'+(i===r.cur?' · ваш':'')+'</p><p class="gp-tc-step-text">Iк '+f(row.ik,0)+' А · до '+fl(row.lmax)+' м · '+(row.pass?'отключит':'не отключит')+'</p></div>'; }
+    $('gp-kz-steps-size').innerHTML=h; $('gp-kz-cap-size').textContent=p.curve+p.in+(Math.abs(p.mult-CURVE[p.curve].k)>1e-9?' · '+fs(p.mult)+' × In':'');
+  }
+  function brName(p){ return p.curve+p.in+(Math.abs(p.mult-CURVE[p.curve].k)>1e-9?' (отсечка '+fs(p.mult)+' × In)':''); }
+  function rcdText(p,r){
+    if(p.rcd==='30') return r.pass?'<strong>УЗО 30 мА:</strong> дополнительная защита от поражения током при прямом прикосновении и утечке. Ток КЗ при этом всё равно должен отключать автомат.':'<strong>УЗО 30 мА</strong> отключит замыкание фазы на корпус за доли секунды, поэтому людей на этой линии оно защитит. Но замыкание фазы на ноль УЗО не видит — его отключит только тепловой расцепитель автомата, с задержкой. Лучше всё равно добиться мгновенного срабатывания автомата.';
+    if(p.rcd==='300') return '<strong>УЗО 100–300 мА</strong> — противопожарное, от поражения током при прикосновении оно не защищает. '+(r.pass?'Защиту людей при замыкании на корпус здесь обеспечивает отсечка автомата.':'Для этой линии нужен либо автомат, который отключит КЗ мгновенно, либо УЗО 30 мА.');
+    return r.pass?'<strong>УЗО:</strong> для розеточных групп по ПУЭ (п. 7.1.79) нужно УЗО 30 мА; для стационарных приборов оно рекомендуется.':'<strong>УЗО на линии нет.</strong> Сейчас при замыкании на корпус защиту обеспечивает только тепловой расцепитель — это может занять секунды. Измените автомат или кабель либо добавьте УЗО 30 мА.';
+  }
+
+  function update(){
+    syncLen(fields.len);
+    var p={curve:st.curve,in:parseInt(fields.in.value,10),mult:num(fields.mult),mat:st.mat,s:parseFloat(fields.s.value),pe:parseFloat(fields.pe.value)||0,len:num(fields.len),u:num(fields.u),net:st.net,zs:num(fields.zs),rcd:fields.rcd.value,icn:parseInt(fields.icn.value,10)};
+    var r=calcKz(p);
+    if(!r.ok){ showError(r.errors); return; }
+    $('gp-kz-error').classList.remove('is-visible'); $('gp-kz-error').textContent='';
+    $('gp-kz-ia-line').textContent=f(r.ia,0)+' А ('+fs(p.mult)+' × '+p.in+' А)';
+    $('gp-kz-net-line').textContent=p.net==='zs'?'Zщ '+f(p.zs,2)+' Ом → ток КЗ на щите ≈ '+f(r.ikShield,0)+' А':'учтена просадкой напряжения до 80 %';
+    $('gp-kz-ik').textContent=f(r.ik,0)+' А';
+    $('gp-kz-ik-unit').textContent='фаза — PE · петля линии '+f(r.rLine,2)+' Ом';
+    $('gp-kz-ia').textContent=f(r.ia,0)+' А';
+    $('gp-kz-ia-unit').textContent=p.curve+p.in+' · '+fs(p.mult)+' × In';
+    $('gp-kz-lmax').textContent=fl(r.lmax)+' м';
+    $('gp-kz-lmax-unit').textContent='у вас '+fs(p.len)+' м · '+MAT[p.mat].name+' '+fs(p.s)+(r.m!==1?'/'+fs(r.spe):'')+' мм²';
+    $('gp-kz-ok').textContent=r.pass?'✓ Да':'✕ Нет';
+    $('gp-kz-ok-unit').textContent=r.pass?'запас по току ×'+f(r.margin,2)+' · быстрее 0,1 с':'тока не хватает: ×'+f(r.margin,2)+' от порога';
+    renderCurves(r,p); renderSizes(r,p);
+    bar('gp-kz-bar-len',r.lmax>0?p.len/r.lmax:1,fs(p.len)+' из '+fl(r.lmax)+' м');
+    bar('gp-kz-bar-ia',r.ia/r.ik,f(r.ia,0)+' из '+f(r.ik,0)+' А');
+    if(p.net==='zs') bar('gp-kz-bar-icn',r.ikShield/p.icn,f(r.ikShield,0)+' из '+f(p.icn,0)+' А');
+
+    var s;
+    if(r.pass) s='<strong>Автомат '+brName(p)+' отключит замыкание в конце линии мгновенно:</strong> ток КЗ ≈ '+f(r.ik,0)+' А больше порога отсечки '+f(r.ia,0)+' А в '+f(r.margin,2)+' раза. С этим кабелем и автоматом линию можно тянуть до '+fl(r.lmax)+' м.';
+    else s='<strong>Автомат '+brName(p)+' не отключит замыкание в конце линии мгновенно:</strong> ток КЗ ≈ '+f(r.ik,0)+' А меньше порога отсечки '+f(r.ia,0)+' А. Сработает только тепловой расцепитель, с задержкой в секунды. Для этой связки предельная длина — '+fl(r.lmax)+' м, а у вас '+fs(p.len)+' м.';
+    if(r.pass&&r.margin<1.2) s+=' <strong>Запас небольшой:</strong> плохой контакт, удлинитель или неточная длина могут его съесть.';
+    if(r.m!==1) s+=' Защитный проводник тоньше фазного ('+fs(r.spe)+' мм²), это уменьшает ток КЗ.';
+    if(p.net==='conv') s+=' Сеть до щита учтена условно; если дом далеко от подстанции, сделайте замер петли.';
+    $('gp-kz-summary').innerHTML=s;
+
+    var a=[];
+    if(!r.pass){
+      var opts=[];
+      r.curves.forEach(function(c){ if(c.pass&&c.c!==p.curve) opts.push('характеристика <strong>'+c.c+p.in+'</strong> — до '+fl(c.lmax)+' м'); });
+      if(r.maxIn&&r.maxIn<p.in) opts.push('номинал <strong>'+p.curve+r.maxIn+'</strong>, если рабочий ток линии не больше '+r.maxIn+' А');
+      if(r.minS) opts.push('сечение <strong>'+fs(r.minS)+' мм²</strong> с тем же '+p.curve+p.in+' — до '+fl(r.rows[SIZES[p.mat].indexOf(r.minS)].lmax)+' м');
+      else opts.push('ни одно сечение до '+fs(SIZES[p.mat][SIZES[p.mat].length-1])+' мм² не даёт нужного тока с этим автоматом');
+      a.push('<p><strong>Что поменять:</strong> '+opts.join('; ')+'.</p>');
+    }
+    a.push('<p>'+rcdText(p,r)+'</p>');
+    if(p.net==='zs'){
+      if(r.ikShield>p.icn) a.push('<p><strong>Отключающая способность мала:</strong> ток КЗ на щите ≈ '+f(r.ikShield,0)+' А больше '+f(p.icn,0)+' А. Нужен автомат с большей отключающей способностью — это решают в проекте щита.</p>');
+      else a.push('<p><strong>Отключающая способность:</strong> ток КЗ на щите ≈ '+f(r.ikShield,0)+' А, автомат на '+f(p.icn,0)+' А его разорвёт.</p>');
+    }
+    if(p.curve==='B'&&r.pass) a.push('<p><strong>Характеристика B</strong> может срабатывать при включении техники с большим пусковым током: компрессоров, насосов, мощных блоков питания. Для таких приборов проверьте паспорт.</p>');
+    $('gp-kz-advice').innerHTML=a.join(''); $('gp-kz-advice').classList.add('is-visible');
+
+    lastResult=r; lastParams=p;
+    var text=encodeURIComponent(report(r,p));
+    $('gp-kz-wa').href='https://api.whatsapp.com/send?phone=79037563275&text='+text;
+    $('gp-kz-tg').href='https://t.me/altwire?text='+text;
+  }
+
+  function report(r,p){
+    return 'РАСЧЁТ ТОКА КЗ И ПРЕДЕЛЬНОЙ ДЛИНЫ ЛИНИИ — ГИП\n\n'
+      +'Автомат: '+brName(p)+'; мгновенное отключение гарантировано при '+f(r.ia,0)+' А\n'
+      +'Кабель: '+MAT[p.mat].name+', фаза '+fs(p.s)+' мм², PE '+fs(r.spe)+' мм², длина '+fs(p.len)+' м\n'
+      +'Сеть до щита: '+(p.net==='zs'?'замер петли '+f(p.zs,2)+' Ом':'не замерялась, принята просадка до 80 %')+'; U0 '+f(p.u,0)+' В\n\n'
+      +'Ток КЗ в конце линии: '+f(r.ik,0)+' А (петля линии '+f(r.rLine,2)+' Ом)\n'
+      +'Мгновенное отключение: '+(r.pass?'да':'нет')+', отношение тока КЗ к порогу ×'+f(r.margin,2)+'\n'
+      +'Предельная длина для этого автомата и кабеля: '+fl(r.lmax)+' м\n'
+      +'Для сравнения: '+r.curves.map(function(c){return c.c+p.in+' — до '+fl(c.lmax)+' м';}).join(', ')+'\n'
+      +(p.net==='zs'?'Ток КЗ на щите: '+f(r.ikShield,0)+' А; отключающая способность автомата '+f(p.icn,0)+' А\n':'')
+      +'УЗО на линии: '+({none:'нет','30':'30 мА','300':'100–300 мА'})[p.rcd]+'\n\n'
+      +'Расчёт предварительный, упрощённый метод. Для проекта нужны полный расчёт токов КЗ, проверка селективности и термической стойкости кабелей, а после монтажа — замер петли фаза-ноль.';
+  }
+
+  root.querySelectorAll('[data-kind="preset"]').forEach(function(b){
+    b.addEventListener('click',function(){
+      root.querySelectorAll('[data-kind="preset"]').forEach(function(x){x.setAttribute('aria-pressed',x===b?'true':'false');});
+      st.mat=b.getAttribute('data-mat'); pressValue('mat',st.mat); fillSizes(parseFloat(b.getAttribute('data-s')),0);
+      setCurve(b.getAttribute('data-curve'),true);
+      fields.in.value=b.getAttribute('data-in'); fields.len.value=b.getAttribute('data-len');
+      update();
+    });
+  });
+  root.querySelectorAll('[data-kind="curve"]').forEach(function(b){b.addEventListener('click',function(){clearPreset();setCurve(b.getAttribute('data-v'),true);update();});});
+  root.querySelectorAll('[data-kind="mat"]').forEach(function(b){b.addEventListener('click',function(){clearPreset();setMat(b.getAttribute('data-v'));update();});});
+  root.querySelectorAll('[data-kind="net"]').forEach(function(b){b.addEventListener('click',function(){setNet(b.getAttribute('data-v'));update();});});
+  fields.range.addEventListener('input',function(){clearPreset();syncLen(fields.range);update();});
+  [fields.len,fields.mult].forEach(function(el){el.addEventListener('input',function(){clearPreset();update();});});
+  [fields.u,fields.zs].forEach(function(el){el.addEventListener('input',update);});
+  [fields.in,fields.s,fields.pe].forEach(function(el){el.addEventListener('change',function(){clearPreset();update();});});
+  [fields.rcd,fields.icn].forEach(function(el){el.addEventListener('change',update);});
+
+  function toast(msg){
+    var t=document.querySelector('.gp-kz-toast');
+    if(!t){t=document.createElement('div');t.className='gp-kz-toast';document.body.appendChild(t);}
+    t.textContent=msg; t.classList.add('is-visible'); clearTimeout(t._h); t._h=setTimeout(function(){t.classList.remove('is-visible');},2600);
+    $('gp-kz-copy-status').textContent=msg;
+  }
+  function fallbackCopy(text){
+    var ta=document.createElement('textarea'); ta.value=text; ta.setAttribute('readonly',''); ta.className='gp-tc-sr'; document.body.appendChild(ta); ta.select();
+    var ok=false; try{ok=document.execCommand('copy');}catch(e){ok=false;} ta.remove(); return ok;
+  }
+  function copyText(text){
+    if(navigator.clipboard&&typeof navigator.clipboard.writeText==='function') return navigator.clipboard.writeText(text).then(function(){return true;}).catch(function(){return fallbackCopy(text);});
+    return Promise.resolve(fallbackCopy(text));
+  }
+  $('gp-kz-copy').addEventListener('click',function(){
+    if(!lastResult){toast('Сначала исправьте исходные данные');return;}
+    copyText(report(lastResult,lastParams)).then(function(ok){toast(ok?'Расчёт тока КЗ скопирован':'Не удалось скопировать расчёт');});
+  });
+  $('gp-kz-max').addEventListener('click',function(){
+    if(!lastResult){toast('Сначала исправьте исходные данные');return;}
+    window.open('https://max.ru/u/f9LHodD0cOJ9f_CUmTNWTBfMncx01oNa6WzHpxav8u2IIQsRY8_ei1emvKo','_blank','noopener');
+    copyText(report(lastResult,lastParams)).then(function(ok){toast(ok?'Расчёт скопирован — вставьте его в MAX':'MAX открыт; автоматически скопировать не удалось');});
+  });
+
+  fillSizes(2.5,0);
+  setCurve('C',false);
+  setNet('conv');
+  update();
+  }
+  if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',initKzCalculator,{once:true});}else{initKzCalculator();}
+})();
+</script>
+</article>
